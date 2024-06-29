@@ -1,0 +1,104 @@
+<script setup lang="ts">
+const jiraUrl = 'http://jira.nefer.com.tw:8080/browse/'
+
+const props = defineProps<{
+  order: Order
+}>()
+
+const emit = defineEmits<{
+  (event: 'edit', newContent: {
+    oldOrderNo: string,
+    orderNo: string,
+    title: string,
+    done: boolean,
+  }): void,
+  (event: 'toggleDone', orderNo: string): void,
+  (event: 'mark', orderNo: string): void
+}>()
+
+const inputField = ref<HTMLInputElement | null>(null)
+const dragItem = ref<HTMLDivElement | null>(null)
+const editing = ref(false)
+const currentText = ref(`${props.order.orderNo} ${props.order.title}`)
+
+function startEditing() {
+  editing.value = true
+
+  nextTick(() => {
+    inputField.value?.focus()
+  })
+}
+
+function endEditing() {
+  currentText.value = currentText.value.trim()
+
+  const regex = /^(CS-\d{5}|GMS-\d{4})\s*(.*)$/
+  const match = currentText.value.match(regex)
+
+  if (!match) {
+    alert('格式不符')
+    editing.value = false
+    currentText.value = `${props.order.orderNo} ${props.order.title}`
+    return
+  }
+
+  const csPart = match[1]
+  const restPart = match[2]
+  const handled = [csPart, restPart]
+
+  editing.value = false
+  currentText.value = `${csPart} ${restPart}`
+  emit('edit', {
+    oldOrderNo: props.order.orderNo,
+    orderNo: handled[0],
+    title: handled[1],
+    done: props.order.done,
+  })
+}
+
+function startDrag(event: DragEvent, order: Order): void {
+  console.log(order)
+  event.dataTransfer!.dropEffect = 'move'
+  event.dataTransfer!.effectAllowed = 'move'
+  event.dataTransfer!.setData('orderNo', order.orderNo)
+}
+
+function toggleDone(orderNo: string) {
+  emit('toggleDone', orderNo)
+}
+
+function toggleMark(orderNo: string) {
+  emit('mark', orderNo)
+}
+
+</script>
+
+<template>
+  <div class="pl-4 mb-0.5 draggable
+    transition-transform transform hover:-translate-y-1 hover:scale-105
+    duration-300 ease-in-out
+    cursor-grab"
+    :class="{ 'bg-warning': order.marked }"
+    ref="dragItem"
+    :draggable="!editing"
+    @dragstart="startDrag($event, order)" 
+    @dblclick="startEditing"
+  >
+    <!-- show -->
+    <div v-if="!editing" class="flex items-center" :class="{ 'line-through text-gray-600': order.done }">
+      <a class="link link-info" :href="jiraUrl + order.orderNo">{{ order.orderNo }}</a>
+      <p class="pl-2" >{{ order.title }}</p>
+      <div class="ml-auto">
+        <button class="btn btn-accent btn-xs" @dblclick.stop @click="toggleDone(order.orderNo)">结单</button>
+        <button class="btn btn-accent btn-xs" @dblclick.stop @click="toggleMark(order.orderNo)">标注</button>
+      </div>
+    </div>
+
+    <!-- edit -->
+    <div v-else class="form-control" >
+      <input ref="inputField" v-model="currentText" @blur="endEditing" @keyup.enter="endEditing" class="input input-alt" placeholder="Type something intelligent" type="text">
+      <span class="input-border input-border-alt"></span>
+    </div>
+
+  </div>
+</template>
