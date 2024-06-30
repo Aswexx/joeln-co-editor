@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { io, type Socket } from 'socket.io-client'
 // ws //////////////////////
+const firstLoginData = ref<string | null>('')
 const socket = ref<Socket>()
-onMounted(() => {
+onMounted(async () => {
+  const { data, error } = await useFetch<string | null>('/api/redis-test-get')
+  firstLoginData.value = data.value
   socket.value = io({
     path: '/api/socket.io'
   })
@@ -272,6 +275,7 @@ function startEditingWorker() {
 
 <template>
   <div class="border h-[100vh] p-4">
+    <h1>首登资料拉取测试: {{ firstLoginData }}</h1>
     <div class="space-x-2">
       <button 
         class="btn btn-active btn-neutral mt-4 ml-auto"

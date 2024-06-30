@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@nuxt/icon": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "ioredis": "^5.4.1",
     "nuxt": "^3.11.2",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@iconify-json/material-symbols": "^1.1.82",
+    "@types/node": "^20.14.9",
     "autoprefixer": "^10.4.19",
     "daisyui": "^4.12.2",
     "postcss": "^8.4.38",
