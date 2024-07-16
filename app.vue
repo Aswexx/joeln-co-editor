@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import { io, type Socket } from 'socket.io-client'
+import { debounce } from 'lodash'
 // ws //////////////////////
-const firstLoginData = ref<string | null>('')
 const socket = ref<Socket>()
 onMounted(async () => {
-  const { data, error } = await useFetch<string | null>('/api/redis-test-get')
-  firstLoginData.value = data.value
+  const { data, error } = await useFetch<Order[] | null>('/api/newest-orders')
+  if (data.value) {
+    orders.value = data.value
+  }
   socket.value = io({
     path: '/api/socket.io'
   })
-  socket.value.on('message', (payload) => {
-    console.log(`recieved ${payload}`)
+  socket.value.on('recieveUpdate', (payload) => {
+    if (typeof payload === 'string') {
+      worker.value = payload
+    } else {
+      ordersToShow.value = payload
+    }
   })
 
   socket.value.on('currentUsers', (newUser) => {
@@ -47,12 +53,28 @@ const orders = ref<Order[]>([{
   belongsTo: 'payments',
   done: false,
   marked: false
-}])
+  }])
 
-watch(orders, (newOrders, oldOrders) => {
-  socket.value?.emit('ordersUpdate', 'update1')
+const ordersToShow = ref(orders.value)
+
+async function updateTemplate(newData: Order[] | string) {
+  socket.value?.emit('ordersUpdate', newData)
+  if (typeof newData !== 'string') {
+      await $fetch<string | null>('/api/set-redis-value', {
+      method: 'POST',
+      body: newData
+    })
+  }
+}
+
+const debouncedUpdateData = debounce(updateTemplate, 3000)
+
+watch(orders, async (newOrders: Order[], oldOrders) => {
+  // 本地及時變更(ordersToShow更新)，
+  // 但只抓最後更動3秒沒有新變動的才送出去
+  ordersToShow.value = newOrders
+  debouncedUpdateData(newOrders)
 }, { deep: true })
-
 
 const newOrder = ref('')
 const newOrderSection = ref<'follows' | 'payments' | 'newNeeds' | 'bets'>('bets')
@@ -62,14 +84,14 @@ const workerInputField = ref<HTMLInputElement | null> (null)
 const editingWorker = ref(false)
 const worker = ref('')
 
-watch(worker, (newWorkers, oldWorkers) => {
-  socket.value?.emit('ordersUpdate', 'update1')
+watch(worker, (newWorkers: string, oldWorkers) => {
+  debouncedUpdateData(newWorkers)
 })
 
-const followOrders = computed(() => orders.value.filter(o => o.belongsTo === 'follows'))
-const paymentOrders = computed(() => orders.value.filter(o => o.belongsTo === 'payments'))
-const newNeedOrders = computed(() => orders.value.filter(o => o.belongsTo === 'newNeeds'))
-const betOrders = computed(() => orders.value.filter(o => o.belongsTo === 'bets'))
+const followOrders = computed(() => ordersToShow.value.filter(o => o.belongsTo === 'follows'))
+const paymentOrders = computed(() => ordersToShow.value.filter(o => o.belongsTo === 'payments'))
+const newNeedOrders = computed(() => ordersToShow.value.filter(o => o.belongsTo === 'newNeeds'))
+const betOrders = computed(() => ordersToShow.value.filter(o => o.belongsTo === 'bets'))
 
 function endEditing() {
   editingWorker.value = false
@@ -142,6 +164,12 @@ function addNewOrder() {
 
   const csPart = match[1]
   const restPart = match[2]
+
+  // 避免添加相同单号
+  if (orders.value.find(o => o.orderNo === csPart)) {
+    newOrder.value = ''
+    return alert('单号重复')
+  }
 
   orders.value.push({
     orderNo: csPart,
@@ -257,6 +285,14 @@ async function genTempltae() {
   sendToMarkdownBot()
 }
 
+function openMarkedOrders() {
+  const jiraUrl = 'http://jira.nefer.com.tw:8080/browse/'
+  const markedOrders = orders.value.filter(o => o.marked)
+  markedOrders.forEach(mo => {
+    window.open(`${jiraUrl}${mo.orderNo}`,'_blank')
+  })
+}
+
 function sendToMarkdownBot() {
   const username = 'markdownbot'
   const url = `tg://resolve?domain=${username}`
@@ -274,20 +310,43 @@ function startEditingWorker() {
 </script>
 
 <template>
-  <div class="border h-[100vh] p-4">
-    <h1>首登资料拉取测试: {{ firstLoginData }}</h1>
-    <div class="space-x-2">
-      <button 
-        class="btn btn-active btn-neutral mt-4 ml-auto"
-        @click="handleClipboardContent"
-      >貼上</button>
-      <button 
-        class="btn btn-active btn-neutral mt-4 ml-auto"
-        @click="genTempltae"
-      >生成并复制markdown模版</button>
+  <div class="h-[100vh] p-4">
+    <div class="w-1/2 mb-4 mx-auto flex items-center justify-between">
+      <div class="space-x-2">
+        <button 
+          class="btn btn-active btn-neutral"
+          @click="handleClipboardContent"
+        >貼上</button>
+  
+        <button 
+          class="btn btn-active btn-neutral"
+          @click="genTempltae"
+        >生成并复制markdown模版</button>
+
+        <button 
+          class="btn btn-active btn-neutral"
+          @click="openMarkedOrders"
+        >开启标注单</button>
+      </div>
+      <div class="flex relative group">
+        <Icon 
+          class="text-red-400 cursor-pointer text-3xl"
+          name="ic:baseline-help-outline"
+        />
+        <div class="absolute bottom-0 right-0 transform translate-y-full 
+          hidden group-hover:block z-10 w-72 max-h-48 overflow-y-auto 
+          bg-white border border-gray-300 p-4 rounded-lg shadow-lg"
+          >
+          1.双击JIRA单可编辑
+          <br>
+          2.JIRA单可以在不同区块间拖弋
+        </div>
+      </div>
     </div>
 
-    <div class="border border-red-300 max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto
+        h-[85dvh] overflow-x-hidden overflow-y-auto"
+      >
       <div v-if="!editingWorker" class="flex items-center space-x-2">
         <h1 class="text-red-300">交接人：{{ worker }}</h1>
         <Icon 

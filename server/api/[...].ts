@@ -7,31 +7,21 @@ const renderRedis = new Redis(REDIS_URL)
 const router = createRouter()
 
 router.get('/socket.io', defineEventHandler((event: H3Event) => initSocket(event)))
-router.get(
-  '/redis-test',
+
+router.post(
+  '/set-redis-value',
   defineEventHandler(async (event) => {
-    console.log('rrrr', process.env.REDIS_URL)
-    
-    // Internal Redis URL example:
-    // "redis://red-xxxxxxxxxxxxxxxxxxxx:6379"
-    // External Redis URL will be slightly different:
-    // "rediss://red-xxxxxxxxxxxxxxxxxxxx:PASSWORD@HOST:6379"
-    
-    await renderRedis.set('test1', 'value1')
+    const body = await readBody(event)
+    await renderRedis.set('newestOrders', JSON.stringify(body))
   })
 )
 
 router.get(
-  '/redis-test-get',
+  '/newest-orders',
   defineEventHandler(async (event) => {
-    console.log('rrrr', process.env.REDIS_URL)
-
-    const result = await renderRedis.get('test1')
-    console.log(result)
-
-    return result
+    const result = await renderRedis.get('newestOrders')
+    return JSON.parse(result as string)
   })
 )
-
 
 export default useBase('/api', router.handler)

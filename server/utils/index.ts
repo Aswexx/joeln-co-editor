@@ -19,8 +19,7 @@ export function initSocket(event: H3Event) {
 
     // orders update
     socket.on('ordersUpdate', (payload) => {
-      console.log('ordersUpdate', payload)
-      io.emit('message', payload)
+      io.emit('recieveUpdate', payload)
     })
 
     // disconnect

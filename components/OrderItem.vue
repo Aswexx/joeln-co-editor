@@ -57,7 +57,6 @@ function endEditing() {
 }
 
 function startDrag(event: DragEvent, order: Order): void {
-  console.log(order)
   event.dataTransfer!.dropEffect = 'move'
   event.dataTransfer!.effectAllowed = 'move'
   event.dataTransfer!.setData('orderNo', order.orderNo)
@@ -74,7 +73,7 @@ function toggleMark(orderNo: string) {
 </script>
 
 <template>
-  <div class="pl-4 mb-0.5 draggable
+  <div class="px-4 mb-0.5 draggable
     transition-transform transform hover:-translate-y-1 hover:scale-105
     duration-300 ease-in-out
     cursor-grab"
@@ -83,20 +82,31 @@ function toggleMark(orderNo: string) {
     :draggable="!editing"
     @dragstart="startDrag($event, order)" 
     @dblclick="startEditing"
+    tabindex="0"
   >
     <!-- show -->
     <div v-if="!editing" class="flex items-center" :class="{ 'line-through text-gray-600': order.done }">
-      <a class="link link-info" :href="jiraUrl + order.orderNo">{{ order.orderNo }}</a>
+      <a class="link link-info"
+        :href="jiraUrl + order.orderNo"
+        target="_blank"
+      >
+        {{ order.orderNo }}
+      </a>
       <p class="pl-2" >{{ order.title }}</p>
       <div class="ml-auto">
-        <button class="btn btn-accent btn-xs" @dblclick.stop @click="toggleDone(order.orderNo)">结单</button>
-        <button class="btn btn-accent btn-xs" @dblclick.stop @click="toggleMark(order.orderNo)">标注</button>
+        <button class="btn btn-accent btn-xs" @dblclick.stop @click="toggleDone(order.orderNo)">{{ order.done ? '取消结单' : '结单' }}</button>
+        <button class="btn btn-accent btn-xs" @dblclick.stop @click="toggleMark(order.orderNo)">{{ order.marked ? '取消标注' : '标注' }}</button>
       </div>
     </div>
 
     <!-- edit -->
     <div v-else class="form-control" >
-      <input ref="inputField" v-model="currentText" @blur="endEditing" @keyup.enter="endEditing" class="input input-alt" placeholder="Type something intelligent" type="text">
+      <input ref="inputField" v-model="currentText"
+        class="input input-alt" placeholder="Type something intelligent" type="text"
+        @blur="endEditing" 
+        @keyup.enter="endEditing" 
+        @keyup.esc="endEditing"
+      >
       <span class="input-border input-border-alt"></span>
     </div>
 
