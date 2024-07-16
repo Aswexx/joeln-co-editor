@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { io, type Socket } from 'socket.io-client'
-import { debounce } from 'lodash'
+// import { debounce } from 'lodash'
+import debounce from 'lodash'
 // ws //////////////////////
 const socket = ref<Socket>()
 onMounted(async () => {
@@ -65,9 +66,11 @@ async function updateTemplate(newData: Order[] | string) {
       body: newData
     })
   }
+
+  console.log('sent')
 }
 
-const debouncedUpdateData = debounce(updateTemplate, 3000)
+const debouncedUpdateData = debounce.debounce(updateTemplate, 3000)
 
 watch(orders, async (newOrders: Order[], oldOrders) => {
   // 本地及時變更(ordersToShow更新)，
