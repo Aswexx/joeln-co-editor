@@ -11,7 +11,7 @@ export default {
   theme: {},
   plugins: [require('daisyui')],
   daisyui: {
-    themes: ['halloween']
+    themes: ['lemonade']
   }
 }
 

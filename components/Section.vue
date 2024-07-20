@@ -36,7 +36,7 @@ function ondragLeave() {
     <div class="flex justify-between">
       <h1>{{ sectionTitle }}</h1>
       <button
-        class="btn btn-neutral btn-xs"
+        class="btn btn-error btn-xs"
         onclick="my_modal_2.showModal()"
         @click="emit('addNewOrder', sectionTitle)"
       >+</button>

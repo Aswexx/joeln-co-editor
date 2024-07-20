@@ -314,20 +314,25 @@ function startEditingWorker() {
 
 <template>
   <div class="h-[100vh] p-4">
-    <div class="w-1/2 mb-4 mx-auto flex items-center justify-between">
+    <Html>
+      <Head>
+        <Title>Co-Editor</Title>
+      </Head>
+    </Html>
+    <div class="w-full max-w-[900px] mb-4 mx-auto flex items-center justify-between">
       <div class="space-x-2">
         <button 
-          class="btn btn-active btn-neutral"
+          class="btn btn-success"
           @click="handleClipboardContent"
-        >貼上</button>
+        >复制上一班貼上</button>
   
         <button 
-          class="btn btn-active btn-neutral"
+          class="btn btn-success"
           @click="genTempltae"
-        >生成并复制markdown模版</button>
+        >复制模版并开启MarkdownBot</button>
 
         <button 
-          class="btn btn-active btn-neutral"
+          class="btn btn-success"
           @click="openMarkedOrders"
         >开启标注单</button>
       </div>
@@ -337,12 +342,27 @@ function startEditingWorker() {
           name="ic:baseline-help-outline"
         />
         <div class="absolute bottom-0 right-0 transform translate-y-full 
-          hidden group-hover:block z-10 w-72 max-h-48 overflow-y-auto 
+          hidden group-hover:block z-10 w-96 max-h-96 overflow-y-auto 
           bg-white border border-gray-300 p-4 rounded-lg shadow-lg"
           >
-          1.双击JIRA单可编辑
+          1. 在TG复制上一班内容点后，击 "复制上一班贴上" 键即可带入。
           <br>
-          2.JIRA单可以在不同区块间拖弋
+          <br>
+          2. "复制模版并开启MarkdownBot"键会排除已结单内容，
+          连结 MarkdownBot 后可直接在对话框 Ctrl+V 贴上，
+          让 Bot 生成最终要发的内容。
+          <br>
+          <br>
+          3. "开启标注单" 可批量开启标注的 JIRA 单。
+          <br>
+          <br>
+          4. 各区块右上的 "+" 键可新增 JIRA 单。
+          <br>
+          <br>
+          5. 双击JIRA单可编辑。
+          <br>
+          <br>
+          6. JIRA单可以在不同区块间拖弋。
         </div>
       </div>
     </div>
@@ -443,7 +463,7 @@ function startEditingWorker() {
 
 <style>
 .input {
-  color: #fff;
+  color: #494B46;
   font-size: 0.9rem;
   background-color: transparent;
   width: 100%;

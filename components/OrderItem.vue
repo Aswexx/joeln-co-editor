@@ -86,7 +86,7 @@ function toggleMark(orderNo: string) {
   >
     <!-- show -->
     <div v-if="!editing" class="flex items-center" :class="{ 'line-through text-gray-600': order.done }">
-      <a class="link link-info"
+      <a class="link link-primary"
         :href="jiraUrl + order.orderNo"
         target="_blank"
       >
@@ -94,8 +94,8 @@ function toggleMark(orderNo: string) {
       </a>
       <p class="pl-2" >{{ order.title }}</p>
       <div class="ml-auto">
-        <button class="btn btn-accent btn-xs" @dblclick.stop @click="toggleDone(order.orderNo)">{{ order.done ? '取消结单' : '结单' }}</button>
-        <button class="btn btn-accent btn-xs" @dblclick.stop @click="toggleMark(order.orderNo)">{{ order.marked ? '取消标注' : '标注' }}</button>
+        <button class="btn btn-info btn-xs" @dblclick.stop @click="toggleDone(order.orderNo)">{{ order.done ? '取消结单' : '结单' }}</button>
+        <button class="btn btn-info btn-xs" @dblclick.stop @click="toggleMark(order.orderNo)">{{ order.marked ? '取消标注' : '标注' }}</button>
       </div>
     </div>
 
