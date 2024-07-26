@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { io, type Socket } from 'socket.io-client'
+import { useGenProdTemp } from './utils/useGenProdTemp'
 // import { debounce } from 'lodash'
 import debounce from 'lodash'
 // ws //////////////////////
@@ -16,7 +17,7 @@ onMounted(async () => {
     if (typeof payload === 'string') {
       worker.value = payload
     } else {
-      ordersToShow.value = payload
+      asyncOrders(payload)
     }
   })
 
@@ -24,6 +25,26 @@ onMounted(async () => {
     console.log(`new user ${newUser}`)
   })
 })
+
+const asyncProcess = ref(false)
+function asyncOrders(payload: Order[]) {
+  asyncProcess.value = true
+  ordersToShow.value = payload
+  orders.value = payload
+  // 利用 key 更新強制重新渲染，確保接收端更新後可以更新到 OrderItem 的 ref
+  sectionKey1.value += 1
+  sectionKey2.value += 1
+  sectionKey3.value += 1
+  sectionKey4.value += 1
+  setTimeout(() => {
+    asyncProcess.value = false
+  },1000)
+}
+
+const sectionKey1 = ref(0)
+const sectionKey2 = ref(0)
+const sectionKey3 = ref(0)
+const sectionKey4 = ref(0)
 
 onBeforeUnmount(() => {
   socket.value?.disconnect()
@@ -73,6 +94,7 @@ async function updateTemplate(newData: Order[] | string) {
 const debouncedUpdateData = debounce.debounce(updateTemplate, 3000)
 
 watch(orders, async (newOrders: Order[], oldOrders) => {
+  if (asyncProcess.value) return
   // 本地及時變更(ordersToShow更新)，
   // 但只抓最後更動3秒沒有新變動的才送出去
   ordersToShow.value = newOrders
@@ -155,7 +177,7 @@ function handleNewOrderSection(newOrderTargetSection: string) {
 }
 
 function addNewOrder() {
-  newOrder.value = newOrder.value.trim()
+  newOrder.value = newOrder.value.replace(/\(http:\/\/jira.*?\)/g, '').trim()
 
   const regex = /^(CS-\d{5}|GMS-\d{4})\s*(.*)$/
   const match = newOrder.value.match(regex)
@@ -335,6 +357,11 @@ function startEditingWorker() {
           class="btn btn-success"
           @click="openMarkedOrders"
         >开启标注单</button>
+        <!-- TODO: 待完成功能 -->
+        <!-- <button 
+          class="btn btn-success"
+          @click="useGenProdTemp"
+        >获取关单区并生成生产群模版</button> -->
       </div>
       <div class="flex relative group">
         <Icon 
@@ -391,7 +418,7 @@ function startEditingWorker() {
           <span class="input-border input-border-alt"></span>
         </div>
       </div>
-      <Section :section-title="'一.下一班跟进追踪'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
+      <Section :key="sectionKey1" :section-title="'一.下一班跟进追踪'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
         <OrderItem
           v-for="follow in followOrders" :key="follow.orderNo"
           @edit="handleEdit"
@@ -401,7 +428,7 @@ function startEditingWorker() {
         />
       </Section>
 
-      <Section :section-title="'二.金流对接状态'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
+      <Section :key="sectionKey2" :section-title="'二.金流对接状态'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
         <OrderItem 
           v-for="payment in paymentOrders" :key="payment.orderNo"
           @edit="handleEdit" 
@@ -411,7 +438,7 @@ function startEditingWorker() {
         />
       </Section>
 
-      <Section :section-title="'三.当班新建需求'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
+      <Section :key="sectionKey3" :section-title="'三.当班新建需求'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
         <OrderItem 
           v-for="newNeed in newNeedOrders" :key="newNeed.orderNo"
           @edit="handleEdit" 
@@ -421,7 +448,7 @@ function startEditingWorker() {
         />
       </Section>
 
-      <Section :section-title="'四.三方投注查询'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
+      <Section :key="sectionKey4" :section-title="'四.三方投注查询'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
         <OrderItem 
           v-for="bet in betOrders" :key="bet.orderNo"
           @edit="handleEdit" 
