@@ -201,7 +201,7 @@ function addNewOrder() {
     title: restPart,
     belongsTo: newOrderSection.value,
     done: false,
-    marked: false
+    marked: true
   })
 
   newOrder.value = ''
@@ -268,7 +268,7 @@ function parseOrders(input: string): Order[] {
   return orders;
 }
 
-async function genTempltae() {
+async function genTemplate() {
   if (!worker.value) {
     return alert('请填入交接人')
   }
@@ -332,6 +332,29 @@ function startEditingWorker() {
   })
 }
 
+const loadingData = ref(false)
+const prodTemplateStr = ref('')
+async function genProdTemp() {
+  loadingData.value = true
+  const { tempStr } = await useGenProdTemp()
+  prodTemplateStr.value = tempStr
+  loadingData.value = false
+}
+
+const copied = ref(false)
+async function copyText(content: string) {
+  try {
+    await navigator.clipboard.writeText(content)
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    },3000)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+
 </script>
 
 <template>
@@ -350,7 +373,7 @@ function startEditingWorker() {
   
         <button 
           class="btn btn-success"
-          @click="genTempltae"
+          @click="genTemplate"
         >复制模版并开启MarkdownBot</button>
 
         <button 
@@ -358,10 +381,11 @@ function startEditingWorker() {
           @click="openMarkedOrders"
         >开启标注单</button>
         <!-- TODO: 待完成功能 -->
-        <!-- <button 
+        <button 
           class="btn btn-success"
-          @click="useGenProdTemp"
-        >获取关单区并生成生产群模版</button> -->
+          @click="genProdTemp"
+          onclick="my_modal_3.showModal()"
+        >生成生产群发送内容</button>
       </div>
       <div class="flex relative group">
         <Icon 
@@ -380,16 +404,19 @@ function startEditingWorker() {
           让 Bot 生成最终要发的内容。
           <br>
           <br>
-          3. "开启标注单" 可批量开启标注的 JIRA 单。
+          3. "开启标注单" 可批量开启标注的 JIRA 单 (需要先登入过JIRA)。
           <br>
           <br>
-          4. 各区块右上的 "+" 键可新增 JIRA 单。
+          4. "生成生产群发送内容" 会抓取值班手册、关单区、班表资料，执行前先确保当班关单区已经填完。
           <br>
           <br>
-          5. 双击JIRA单可编辑。
+          5. 各区块右上的 "+" 键可新增 JIRA 单。
           <br>
           <br>
-          6. JIRA单可以在不同区块间拖弋。
+          6. 双击JIRA单可编辑。
+          <br>
+          <br>
+          7. JIRA单可以在不同区块间拖弋。
         </div>
       </div>
     </div>
@@ -460,7 +487,7 @@ function startEditingWorker() {
       
     </div>
 
-  <!-- modal -->
+  <!-- add new order modal -->
   <dialog id="my_modal_2" class="modal" ref="modal">
     <div class="modal-box flex flex-col">
       <form method="dialog">
@@ -484,6 +511,32 @@ function startEditingWorker() {
       </button>
     </div>
   </dialog>
+
+  <!-- prod template modal -->
+  <dialog id="my_modal_3" class="modal">
+    <div v-if="loadingData">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+    <div v-else class="modal-box flex flex-col">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <h3 class="font-bold text-lg mb-2">生产发送内容</h3>
+      <textarea 
+        class="textarea textarea-primary h-[600px]" 
+        v-model="prodTemplateStr"
+      >
+      </textarea>
+      <div class="ml-auto space-x-2">
+        <span v-if="copied">已复制 !</span>
+        <button class="btn btn-active btn-neutral mt-4 ml-auto"
+          @click="copyText(prodTemplateStr)"
+        >复制
+        </button>
+      </div>
+    </div>
+  </dialog>
+
 
   </div>
 </template>
