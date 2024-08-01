@@ -396,7 +396,7 @@ async function copyText(content: string) {
           hidden group-hover:block z-10 w-96 max-h-96 overflow-y-auto 
           bg-white border border-gray-300 p-4 rounded-lg shadow-lg"
           >
-          1. 在TG复制上一班内容点后，击 "复制上一班贴上" 键即可带入。
+          1. 在TG复制上一班内容点后，点击 "复制上一班贴上" 键即可带入。
           <br>
           <br>
           2. "复制模版并开启MarkdownBot"键会排除已结单内容，
@@ -407,7 +407,7 @@ async function copyText(content: string) {
           3. "开启标注单" 可批量开启标注的 JIRA 单 (需要先登入过JIRA)。
           <br>
           <br>
-          4. "生成生产群发送内容" 会抓取值班手册、关单区、班表资料，执行前先确保当班关单区已经填完。
+          4. "生成生产群发送内容" 会抓取值班手册、关单区、班表资料，执行前请先确保当班关单区已经填完。
           <br>
           <br>
           5. 各区块右上的 "+" 键可新增 JIRA 单。
@@ -416,7 +416,7 @@ async function copyText(content: string) {
           6. 双击JIRA单可编辑。
           <br>
           <br>
-          7. JIRA单可以在不同区块间拖弋。
+          7. JIRA单可以在不同区块间拖放。
         </div>
       </div>
     </div>
