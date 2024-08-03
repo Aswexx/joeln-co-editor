@@ -176,9 +176,8 @@ export async function useGenProdTemp(): Promise<{ tempStr: string }> {
   const currentGroup = getGroup(gmt8Hours) as Group
   const currentYear = current.getUTCFullYear()
   const currentMonth = current.getUTCMonth() + 1
-  const currentDate = currentGroup === '晚'
-    ? current.getUTCDate() - 1
-    : current.getUTCDate()
+  // 晚班的可能执行时间刚好UTC日期会比UTC+8 少一天，故不额外处理
+  const currentDate = current.getUTCDate()
   
   const [orders, workerNames, dailyCount] = await Promise.all([
     $fetch<SheetOrder[]>(`${url}?path=all-orders`),
