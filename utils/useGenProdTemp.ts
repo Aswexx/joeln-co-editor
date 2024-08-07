@@ -60,9 +60,9 @@ const groups: Groups = {
 
 function getGroup(currentHours: number) {
   switch (true) {
-    case currentHours >= 0 && currentHours <= 6:
+    case currentHours >= 0 && currentHours <= 7:
       return '晚'
-    case currentHours >= 7 && currentHours <= 15:
+    case currentHours >= 8 && currentHours <= 15:
       return '早'
     case currentHours >= 16 && currentHours <= 23:
       return '中'
