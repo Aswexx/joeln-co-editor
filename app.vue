@@ -87,8 +87,6 @@ async function updateTemplate(newData: Order[] | string) {
       body: newData
     })
   }
-
-  console.log('sent')
 }
 
 const debouncedUpdateData = debounce.debounce(updateTemplate, 3000)
@@ -201,7 +199,7 @@ function addNewOrder() {
     title: restPart,
     belongsTo: newOrderSection.value,
     done: false,
-    marked: true
+    marked: newOrderSection.value === 'bets' ? false : true
   })
 
   newOrder.value = ''
@@ -243,12 +241,8 @@ function parseOrders(input: string): Order[] {
       const [orderNo, ...titleParts] = line.split(' ');
       let title = titleParts.join(' ').trim();
 
-      // Remove the part between "(" and ")"
-      const startIndex = title.indexOf('(');
-      const endIndex = title.indexOf(')');
-      if (startIndex !== -1 && endIndex !== -1) {
-        title = title.slice(0, startIndex).trim() + title.slice(endIndex + 1).trim();
-      }
+      // Remove the jira link part between "(" and ")"
+      title = title.replace(/\(http[^【]*/g, '')
 
       // 确保 title 是 "【" 开头
       if (!title.startsWith('【')) {
