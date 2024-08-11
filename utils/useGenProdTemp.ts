@@ -106,8 +106,7 @@ function convertToTemp(currentInfo: {
 共开单 ${currentOrders.length} 张，未处理 0 张
 -------------------------------------------    
 已处理
-${ordersStr}
-`
+${ordersStr}`
 
   return baseStr
 }
