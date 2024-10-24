@@ -52,6 +52,7 @@ const groups: Groups = {
   Roy: '中',
   Abby: '中',
   Tom: '中',
+  Rebecca: '中',
   Tim: '晚',
   Vincent: '晚',
   Owen: '晚',

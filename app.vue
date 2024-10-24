@@ -262,7 +262,7 @@ function parseOrders(input: string): Order[] {
   return orders;
 }
 
-async function genTemplate() {
+async function genTemplate(mode: string) {
   if (!worker.value) {
     return alert('请填入交接人')
   }
@@ -283,25 +283,47 @@ async function genTemplate() {
     bets: []
   }
 
-  unDoneOrders.forEach(item => {
-    groupedData[item.belongsTo].push(`[${item.orderNo}](http://jira.nefer.com.tw:8080/browse/${item.orderNo})${item.title}`);
-  })
-
-  let result = `交接人： ${worker.value}\n--------------------------------------------\n`
-  const blockKeys = Object.keys(blocks) as BelongsTo[]
-
-  blockKeys.forEach((key, index) => {
-    const belongsTo = key
-    result += `${blocks[belongsTo]}\n`
-    if (groupedData[belongsTo].length > 0) {
-      result += `${groupedData[belongsTo].join('\n')}\n`
-    }
-    if (index < blockKeys.length - 1) {
-      result += '--------------------------------------------\n'
-    }
-  })
-  await navigator.clipboard.writeText(result)
-  sendToMarkdownBot()
+  if (mode === 'standard') {
+    unDoneOrders.forEach(item => {
+      groupedData[item.belongsTo].push(`[${item.orderNo}](http://jira.nefer.com.tw:8080/browse/${item.orderNo})${item.title}`);
+    })
+  
+    let result = `交接人： ${worker.value}\n--------------------------------------------\n`
+    const blockKeys = Object.keys(blocks) as BelongsTo[]
+  
+    blockKeys.forEach((key, index) => {
+      const belongsTo = key
+      result += `${blocks[belongsTo]}\n`
+      if (groupedData[belongsTo].length > 0) {
+        result += `${groupedData[belongsTo].join('\n')}\n`
+      }
+      if (index < blockKeys.length - 1) {
+        result += '--------------------------------------------\n'
+      }
+    })
+    await navigator.clipboard.writeText(result)
+    sendToMarkdownBot()
+  } else {
+    unDoneOrders.forEach(item => {
+      groupedData[item.belongsTo].push(`${item.orderNo} ${item.title}`);
+    })
+  
+    let result = `交接人： ${worker.value}\n--------------------------------------------\n`
+    const blockKeys = Object.keys(blocks) as BelongsTo[]
+  
+    blockKeys.forEach((key, index) => {
+      const belongsTo = key
+      result += `${blocks[belongsTo]}\n`
+      if (groupedData[belongsTo].length > 0) {
+        result += `${groupedData[belongsTo].join('\n')}\n`
+      }
+      if (index < blockKeys.length - 1) {
+        result += '--------------------------------------------\n'
+      }
+    })
+    await navigator.clipboard.writeText(result)
+    alert('已复制无链接模版')
+  }
 }
 
 function openMarkedOrders() {
@@ -367,8 +389,13 @@ async function copyText(content: string) {
   
         <button 
           class="btn btn-success"
-          @click="genTemplate"
+          @click="genTemplate('standard')"
         >复制模版并开启MarkdownBot</button>
+
+        <button 
+          class="btn btn-success"
+          @click="genTemplate('raw')"
+        >复制无链接模版</button>
 
         <button 
           class="btn btn-success"
