@@ -48,6 +48,7 @@ const groups: Groups = {
   Alston: '早',
   Daniel: '早',
   Leo: '早',
+  Momo: '早',
   Ryan: '中',
   Roy: '中',
   Abby: '中',
