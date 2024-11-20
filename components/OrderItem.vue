@@ -94,7 +94,7 @@ function toggleMark(orderNo: string) {
       </a>
       <p class="pl-2" >{{ order.title }}</p>
       <div class="ml-auto">
-        <button class="btn btn-info btn-xs" @dblclick.stop @click="toggleDone(order.orderNo)">{{ order.done ? '取消结单' : '结单' }}</button>
+        <button class="btn btn-info btn-xs" @dblclick.stop @click="toggleDone(order.orderNo)">{{ order.done ? '取消删除线' : '删除线' }}</button>
         <button class="btn btn-info btn-xs" @dblclick.stop @click="toggleMark(order.orderNo)">{{ order.marked ? '取消标记' : '标记' }}</button>
       </div>
     </div>
