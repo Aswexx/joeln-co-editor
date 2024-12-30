@@ -285,7 +285,7 @@ async function genTemplate(mode: string) {
 
   if (mode === 'standard') {
     unDoneOrders.forEach(item => {
-      groupedData[item.belongsTo].push(`[${item.orderNo}](http://jira.nefer.com.tw:8080/browse/${item.orderNo})${item.title}`);
+      groupedData[item.belongsTo].push(`[${item.orderNo}](https://jira.nefer.com.tw/browse/${item.orderNo})${item.title}`);
     })
   
     let result = `交接人： ${worker.value}\n--------------------------------------------\n`
@@ -327,7 +327,7 @@ async function genTemplate(mode: string) {
 }
 
 function openMarkedOrders() {
-  const jiraUrl = 'http://jira.nefer.com.tw:8080/browse/'
+  const jiraUrl = 'https://jira.nefer.com.tw/browse/'
   const markedOrders = orders.value.filter(o => o.marked)
   markedOrders.forEach(mo => {
     window.open(`${jiraUrl}${mo.orderNo}`,'_blank')
