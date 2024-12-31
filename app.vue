@@ -175,7 +175,7 @@ function handleNewOrderSection(newOrderTargetSection: string) {
 }
 
 function addNewOrder() {
-  newOrder.value = newOrder.value.replace(/\(http\/\/jira.*?\)/g, '').trim()
+  newOrder.value = newOrder.value.replace(/\(https:\/\/jira.*?\)/g, '').trim()
 
   const regex = /^(CS-\d{5}|GMS-\d{4})\s*(.*)$/
   const match = newOrder.value.match(regex)
@@ -390,7 +390,7 @@ async function copyText(content: string) {
         <button 
           class="btn btn-success"
           @click="genTemplate('standard')"
-        >复制模版并开启MarkdownBot</button>
+        >生成并复制Markdown语法模版</button>
 
         <button 
           class="btn btn-success"
@@ -420,7 +420,7 @@ async function copyText(content: string) {
           1. 在TG复制上一班内容点后，点击 "复制上一班贴上" 键即可带入。
           <br>
           <br>
-          2. "复制Markdown模版"键会排除已结单内容，生成可在 TG 上识别的
+          2. "生成并复制Markdown语法模版"键会排除已结单内容，生成可在 TG 上识别的
           Markdown语法，后续可找能转换的 BOT 直接在对话框 Ctrl+V 贴上，
           让 Bot 生成最终要发的内容。
           <br>
