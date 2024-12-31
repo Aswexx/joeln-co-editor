@@ -175,7 +175,7 @@ function handleNewOrderSection(newOrderTargetSection: string) {
 }
 
 function addNewOrder() {
-  newOrder.value = newOrder.value.replace(/\(http:\/\/jira.*?\)/g, '').trim()
+  newOrder.value = newOrder.value.replace(/\(http\/\/jira.*?\)/g, '').trim()
 
   const regex = /^(CS-\d{5}|GMS-\d{4})\s*(.*)$/
   const match = newOrder.value.match(regex)
@@ -302,7 +302,7 @@ async function genTemplate(mode: string) {
       }
     })
     await navigator.clipboard.writeText(result)
-    sendToMarkdownBot()
+    // sendToMarkdownBot()
   } else {
     unDoneOrders.forEach(item => {
       groupedData[item.belongsTo].push(`${item.orderNo} ${item.title}`);
@@ -334,11 +334,11 @@ function openMarkedOrders() {
   })
 }
 
-function sendToMarkdownBot() {
-  const username = 'markdownbot'
-  const url = `tg://resolve?domain=${username}`
-  window.open(url, '_blank')
-}
+// function sendToMarkdownBot() {
+//   const username = 'markdownbot'
+//   const url = `tg://resolve?domain=${username}`
+//   window.open(url, '_blank')
+// }
 
 function startEditingWorker() {
   editingWorker.value = true
@@ -420,8 +420,8 @@ async function copyText(content: string) {
           1. 在TG复制上一班内容点后，点击 "复制上一班贴上" 键即可带入。
           <br>
           <br>
-          2. "复制模版并开启MarkdownBot"键会排除已结单内容，
-          连结 MarkdownBot 后可直接在对话框 Ctrl+V 贴上，
+          2. "复制Markdown模版"键会排除已结单内容，生成可在 TG 上识别的
+          Markdown语法，后续可找能转换的 BOT 直接在对话框 Ctrl+V 贴上，
           让 Bot 生成最终要发的内容。
           <br>
           <br>
