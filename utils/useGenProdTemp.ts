@@ -28,7 +28,7 @@ type SheetOrder = {
   '单号': string,
   '标题': string,
   '处理人员':
-  'Andy' | 'Alston' | 'Daniel' | 'Leo' | 'Peter' |
+  'Andy' | 'Alston' | 'Daniel' | 'Leo' | 'Peter' | 'Mia' |
   'Ryan' | 'Roy' | 'Abby' | 'Tom' | 'Rebecca' |
   'Tim' | 'Vincent' | 'Owen' | 'Kimi'
 }
@@ -49,6 +49,7 @@ const groups: Groups = {
   Daniel: '早',
   Leo: '早',
   Peter: '早',
+  Mia: '早',
   Ryan: '中',
   Roy: '中',
   Abby: '中',
