@@ -47,14 +47,16 @@ type Groups = {
   [key: string]: Group
 }
 
-
-const employeeDataRes = await $fetch<
-  { 编号: string; 名字: string; 班别: Group }[]
->(employeeDataUrl)
-const groups: Groups = employeeDataRes.reduce<Groups>((acc, item) => {
-  acc[item['名字']] = item['班别']
-  return acc
-}, {})
+async function getEmployees() {
+  const employeeDataRes = await $fetch<
+    { 编号: string; 名字: string; 班别: Group }[]
+    >(employeeDataUrl)
+  
+  return employeeDataRes.reduce<Groups>((acc, item) => {
+    acc[item['名字']] = item['班别']
+    return acc
+  }, {})
+}
 
 
 function getGroup(currentHours: number) {
@@ -124,6 +126,7 @@ async function getWorkerNames(
     params: { targetDay: currentDate, year: currentYear, month: currentMonth }
   })
 
+  const groups = await getEmployees()
   const currentNames = today.filter((t) => groups[t] === currentGroup)
   const getNextGroup = (currentGroup: Group) => {
     if (currentGroup === '早') return '中'
@@ -142,7 +145,8 @@ async function getWorkerNames(
 
   return {
     currentNames,
-    nextNames
+    nextNames,
+    groups
   }
 }
 
@@ -182,7 +186,7 @@ export async function useGenProdTemp(): Promise<{ tempStr: string }> {
     getWorkerNames(currentDate, currentGroup, currentYear, currentMonth),
     getDailyCount(currentMonth, currentDate, currentGroup)
   ])
-  const { currentNames, nextNames } = workerNames
+  const { currentNames, nextNames, groups } = workerNames
 
   const currentOrders = orders.filter(o => {
     const author = o['处理人员']
