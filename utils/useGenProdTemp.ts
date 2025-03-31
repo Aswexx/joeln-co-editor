@@ -22,6 +22,10 @@ const groupSheetUrl =
 const dailySheetUrl =
   'https://script.google.com/macros/s/AKfycbyLymyMLgn6FJilIPN3ipte0WhBS7yFGw4glsvsL5WjGwvLfdFPtriDrjrkZ1DjDIJzxw/exec'
 
+// DB
+const employeeDataUrl =
+  'https://script.google.com/macros/s/AKfycbwoTmp-q1RfJ71Iy_z4ZFTh_Q6H3Qaj0o8LoctC98sHhOavs0tITZVZGlG64nmOFzg/exec?path=employees'
+
 type SheetOrder = {
   '类型': string,
   '日期': string,
@@ -43,23 +47,15 @@ type Groups = {
   [key: string]: Group
 }
 
-const groups: Groups = {
-  Andy: '早',
-  Alston: '早',
-  Daniel: '早',
-  Leo: '早',
-  Peter: '早',
-  Mia: '早',
-  Ryan: '中',
-  Roy: '中',
-  Abby: '中',
-  Tom: '中',
-  Rebecca: '中',
-  Tim: '晚',
-  Vincent: '晚',
-  Owen: '晚',
-  Kimi: '晚'
-}
+
+const employeeDataRes = await $fetch<
+  { 编号: string; 名字: string; 班别: Group }[]
+>(employeeDataUrl)
+const groups: Groups = employeeDataRes.reduce<Groups>((acc, item) => {
+  acc[item['名字']] = item['班别']
+  return acc
+}, {})
+
 
 function getGroup(currentHours: number) {
   switch (true) {
