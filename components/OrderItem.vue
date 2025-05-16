@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const jiraUrl = 'https://jira.nefer.com.tw/browse/'
+const jiraUrl = 'https://jira.icare999.com/browse/'
 
 const props = defineProps<{
   order: Order
