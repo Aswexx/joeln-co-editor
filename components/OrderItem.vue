@@ -13,7 +13,8 @@ const emit = defineEmits<{
     done: boolean,
   }): void,
   (event: 'toggleDone', orderNo: string): void,
-  (event: 'mark', orderNo: string): void
+  (event: 'mark', orderNo: string): void,
+  (event: 'deleteOrder', orderNo: string): void,
 }>()
 
 const inputField = ref<HTMLInputElement | null>(null)
@@ -70,6 +71,10 @@ function toggleMark(orderNo: string) {
   emit('mark', orderNo)
 }
 
+function deleteOrder(orderNo: string) {
+  emit('deleteOrder', orderNo)
+}
+
 </script>
 
 <template>
@@ -92,10 +97,11 @@ function toggleMark(orderNo: string) {
       >
         {{ order.orderNo }}
       </a>
-      <p class="pl-2" >{{ order.title }}</p>
+      <p class="pl-2 max-w-xl" >{{ order.title }}</p>
       <div class="ml-auto">
         <button class="btn btn-info btn-xs" @dblclick.stop @click="toggleDone(order.orderNo)">{{ order.done ? '取消删除线' : '删除线' }}</button>
         <button class="btn btn-info btn-xs" @dblclick.stop @click="toggleMark(order.orderNo)">{{ order.marked ? '取消标记' : '标记' }}</button>
+        <button class="btn btn-info btn-xs" @dblclick.stop @click="deleteOrder(order.orderNo)"  onclick="delete_modal.showModal()">移除</button>
       </div>
     </div>
 

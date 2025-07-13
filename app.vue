@@ -102,6 +102,7 @@ watch(orders, async (newOrders: Order[], oldOrders) => {
 const newOrder = ref('')
 const newOrderSection = ref<'follows' | 'payments' | 'newNeeds' | 'bets'>('bets')
 const modal = ref<HTMLDialogElement | null>(null)
+const deleteModal = ref<HTMLDialogElement | null>(null)
 const workerInputField = ref<HTMLInputElement | null> (null)
 
 const editingWorker = ref(false)
@@ -157,6 +158,18 @@ function handleMark(orderNo: string) {
   const targetOrder = orders.value.find(o => o.orderNo === orderNo)
   targetOrder!.marked = !targetOrder!.marked
 }
+
+let orderToDelete: string
+function handleDeleteOrder(orderNo: string) {
+  orderToDelete = orderNo
+}
+
+function confirmDeleteOrder() {
+  orders.value = orders.value.filter(o => o.orderNo !== orderToDelete)
+  orderToDelete = ''
+  deleteModal.value?.close()
+}
+
 
 function handleNewOrderSection(newOrderTargetSection: string) {
   let dropSectionName: 'follows' | 'payments' | 'newNeeds' | 'bets' = 'bets'
@@ -224,7 +237,7 @@ function parseOrders(input: string): Order[] {
     { key: '一.下一班跟进追踪', belongsTo: 'follows' },
     { key: '二.金流对接状态', belongsTo: 'payments' },
     { key: '三.当班新建需求', belongsTo: 'newNeeds' },
-    { key: '四.三方投注查询', belongsTo: 'bets' },
+    { key: '四.三方游戏相关', belongsTo: 'bets' },
   ];
 
   const orders: Order[] = [];
@@ -273,7 +286,7 @@ async function genTemplate(mode: string) {
     follows: '一.下一班跟进追踪',
     payments: '二.金流对接状态',
     newNeeds: '三.当班新建需求',
-    bets: '四.三方投注查询'
+    bets: '四.三方游戏相关'
   }
 
   const groupedData: Record<BelongsTo, string[]> = {
@@ -401,7 +414,6 @@ async function copyText(content: string) {
           class="btn btn-success"
           @click="openMarkedOrders"
         >开启标注单</button>
-        <!-- TODO: 待完成功能 -->
         <button 
           class="btn btn-success"
           @click="genProdTemp"
@@ -472,6 +484,7 @@ async function copyText(content: string) {
           @edit="handleEdit"
           @toggle-done="handleToggleDone"
           @mark="handleMark"
+          @delete-order="handleDeleteOrder"
           :order="follow"
         />
       </Section>
@@ -482,6 +495,7 @@ async function copyText(content: string) {
           @edit="handleEdit" 
           @toggle-done="handleToggleDone"
           @mark="handleMark"
+          @delete-order="handleDeleteOrder"
           :order="payment"
         />
       </Section>
@@ -492,16 +506,18 @@ async function copyText(content: string) {
           @edit="handleEdit" 
           @toggle-done="handleToggleDone" 
           @mark="handleMark" 
+          @delete-order="handleDeleteOrder"
           :order="newNeed"
         />
       </Section>
 
-      <Section :key="sectionKey4" :section-title="'四.三方投注查询'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
+      <Section :key="sectionKey4" :section-title="'四.三方游戏相关'" @update="handleUpdate" @add-new-order="handleNewOrderSection">
         <OrderItem 
           v-for="bet in betOrders" :key="bet.orderNo"
           @edit="handleEdit" 
           @toggle-done="handleToggleDone" 
-          @mark="handleMark" 
+          @mark="handleMark"
+          @delete-order="handleDeleteOrder"
           :order="bet"
         />
       </Section>
@@ -530,6 +546,27 @@ async function copyText(content: string) {
         @click="addNewOrder"
       >新增
       </button>
+    </div>
+  </dialog>
+
+  <!--delete check modal -->
+  <dialog id="delete_modal" class="modal" ref="deleteModal">
+    <div class="modal-box flex flex-col">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <h3 class="font-bold text-lg">确定要直接移除吗?</h3>
+      <p class="py-2">建议手误新增的才用移除，当班结单先点删除线可以明确记录是当班结单的</p>
+      <p class="">最后生成确切交接模版时同样会排除已画删除线的单</p>
+      <div class="ml-auto flex w-1/3">
+        <button class="btn btn-active btn-neutral mt-4 ml-auto"
+        onclick="delete_modal.close()"
+        >取消
+        </button>
+        <button class="btn btn-active btn-neutral mt-4 ml-auto" @click="confirmDeleteOrder"
+        >确定
+        </button>
+      </div>
     </div>
   </dialog>
 
